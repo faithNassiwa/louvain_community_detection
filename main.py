@@ -1,16 +1,43 @@
-# This is a sample Python script.
-
-# Press ⇧F10 to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+import pandas as pd
+from community import community_louvain
+import networkx as nx
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def generate_graph():
+    """
+    Generate a graph from facebook_combined dataset file.
+    returns: A Graph with nodes and edges
+    """
+    fb_network_data = pd.read_table('facebook_combined.txt')
+    edges = []
+    for column in fb_network_data:
+        for i in fb_network_data[column].values:
+            edges.append(tuple(map(int, i.split())))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    fb_graph = nx.Graph()
+    fb_graph.add_edges_from(edges)
+    return fb_graph
+
+
+def partition_graph():
+    g = generate_graph()
+    # return partition as a dict
+    partition = community_louvain.best_partition(g)
+    return partition
+
+
+def visualize_network():
+    g = generate_graph()
+    partition = partition_graph()
+
+    # draw the graph
+    pos = nx.spring_layout(g)
+
+    # color the nodes according to their partition
+    color_map = cm.get_cmap('viridis', max(partition.values()) + 1)
+    nx.draw_networkx_nodes(g, pos, partition.keys(), node_size=40,
+                           cmap=color_map, node_color=list(partition.values()))
+    nx.draw_networkx_edges(g, pos, alpha=0.5)
+    plt.show()
