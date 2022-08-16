@@ -40,7 +40,7 @@ def generate_graph():
     Generate a graph from facebook_combined dataset file.
     returns: A Graph with nodes and edges
     """
-    fb_network_data = pd.read_table('facebook_combined.txt')
+    fb_network_data = pd.read_table('Louvain/facebook_combined.txt')
     edges = []
     for column in fb_network_data:
         for i in fb_network_data[column].values:
